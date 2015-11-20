@@ -14,7 +14,7 @@ def main():
     # save model
     model_path = '../../experiments/gensim/sunlight_full_train.lda'
     logger.info('Saving model to disk: {}'.format(model_path))
-    model.save(model_path)
+    lda.save(model_path)
 
 if __name__ == '__main__':
     main()
