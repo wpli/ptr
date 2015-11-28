@@ -38,12 +38,12 @@ def main():
     for docid, wordids in ptr_data.docid_wordids.iteritems():
         doc_ct += 1
         if doc_ct % 1000 == 0:
-            logging.info('%s sentences done, current count: %s' % (sentence_ct, count))
+            logging.info('%s documents done' % (doc_ct))
 
         for p, assignment in ptr_params.docid_partitions[docid].iteritems():
             assert assignment == None
             partition_wordids = tuple(wordids[p[0]:p[1]])
-            ptr_params.docid_partitions[p] = assignment_library.get(partition_wordids, None)
+            ptr_params.docid_partitions[docid][p] = assignment_library.get(partition_wordids, None)
 
     logging.info('Writing new_ptr_params')
     with open(os.path.join(data_directory, 'ptr_params.greedy.002.p'), 'w') as f:
