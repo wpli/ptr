@@ -3,9 +3,42 @@ import numpy
 import sys
 import collections
 import PTRExperiment
+import heapq
 
 def wordids_to_words( sorted_vocab, word_ids ):
     return tuple( [ sorted_vocab[i] for i in word_ids ] ) 
+
+def get_top_candidates(query_wordids, ptr_params, num_top_candidates=50, jaccard_cutoff=0.3):
+    idea_hit_counter = collections.defaultdict(int)
+    for wordid in query_wordids:
+        idea_set = ptr_params.ideas.wordids_ideas_inverted_index[wordid]
+        for i in list(idea_set):
+            idea_hit_counter[i] += 1
+    top_ideas = heapq.nlargest(num_top_candidates, idea_hit_counter.iteritems(), key=lambda x:x[1])
+
+    top_candidates = []
+    for cand, count in top_ideas:
+        jacc = count / \
+            float(len(set.union(set(ptr_params.ideas[cand]), set(query_wordids))))
+        if jacc > jaccard_cutoff:
+            top_candidates.append(cand)
+
+    return top_candidates
+
+def get_assignment(wordids, candidate_ideas, ptr_data, ptr_params, pfst_params):
+    background_logprob = get_unigram_logprob(ptr_data, wordids)
+    best_logprob = background_logprob
+    best_idea = None
+
+    for idea in candidate_ideas:
+        idea_wordids = ptr_params.ideas[idea]
+        idea_logprob = get_align_logprob(ptr_params.ideas[idea], wordids, pfst_params)
+        if idea_logprob > best_logprob:
+            best_logprob = idea_logprob
+            best_idea = idea
+
+    return best_idea
+    
 
 def get_sentence_boundaries( sorted_vocab, word_ids ):
     boundaries = [0,len( word_ids ) ]

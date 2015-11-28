@@ -118,12 +118,12 @@ class PTRParameters:
 class IdeaBank(dict):
     def __init__(self):
         self.active_ideas = set()
-
         self.inactive_ideas = set()
         self.wordids_idx_dict = {}
+        self.wordids_ideas_inverted_index = collections.defaultdict(set)
         self.idea_prob = {None: 1.0}
 
-    def add_idea(self, word_ids, idea_idx=None, prob=0.001):
+    def add_idea(self, word_ids, idea_idx=None, prob=0.0001):
         tuple_word_ids = tuple(word_ids)
 
         if idea_idx == None:
@@ -137,12 +137,19 @@ class IdeaBank(dict):
         self.active_ideas.add(idea_idx)
         self.wordids_idx_dict[word_ids] = idea_idx
 
+        for wordid in tuple_word_ids:
+            self.wordids_ideas_inverted_index[wordid].add(idea_idx)
+            
         return idea_idx
 
     def deactivate_idea(self, idx):
         self.active_ideas.remove(idx)
         self.inactive_ideas.add(idx)
         self.idea_prob[None] += self.idea_prob[idx]
+        
+        for wordid in self[idx]:
+            self.wordids_ideas_inverted_index[wordid].remove(wordid)
+  
         del self.idea_prob[idx]
         assert len(set.intersection(self.active_ideas, self.inactive_ideas)) == 0
         assert len(set.union(self.active_ideas,
