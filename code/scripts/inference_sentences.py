@@ -33,7 +33,7 @@ def main():
     with open(os.path.join(data_directory, 'ptr_sentence_counter.p')) as f:
         sentence_counter = cPickle.load(f)
 
-    sorted_sentence_counts = sorted(sentence_counter, key=lambda x:x[1], reverse=True)
+    sorted_sentence_counts = sorted(sentence_counter.items(), key=lambda x:x[1], reverse=True)
     del sentence_counter
 
     alignment_library = {}
