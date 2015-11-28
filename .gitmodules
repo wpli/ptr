@@ -1,0 +1,3 @@
+[submodule "code/utils/splitta"]
+	path = code/utils/splitta
+	url = https://github.com/wpli/splitta
