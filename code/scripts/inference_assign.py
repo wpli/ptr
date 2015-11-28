@@ -43,7 +43,7 @@ def main():
         for p, assignment in ptr_params.docid_partitions[docid].iteritems():
             assert assignment == None
             partition_wordids = tuple(wordids[p[0]:p[1]])
-            ptr_params.docid_partitions[p[0]:p[1]] = assignment_library.get(partition_wordids, None)
+            ptr_params.docid_partitions[p] = assignment_library.get(partition_wordids, None)
 
     logging.info('Writing new_ptr_params')
     with open(os.path.join(data_directory, 'ptr_params.greedy.002.p'), 'w') as f:
