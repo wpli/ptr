@@ -25,14 +25,20 @@ def get_top_candidates(query_wordids, ptr_params, num_top_candidates=50, jaccard
 
     return top_candidates
 
-def get_assignment(wordids, candidate_ideas, ptr_data, ptr_params, pfst_params):
+def get_assignment(wordids, candidate_ideas, ptr_data, ptr_params, pfst_params, alignment_library):
     background_logprob = get_unigram_logprob(ptr_data, wordids)
     best_logprob = background_logprob
     best_idea = None
-
     for idea in candidate_ideas:
         idea_wordids = ptr_params.ideas[idea]
-        idea_logprob = get_align_logprob(ptr_params.ideas[idea], wordids, pfst_params)
+        ref_word_set = frozenset([tuple(idea_wordids), tuple(wordids)])
+
+        if ref_word_set in alignment_library:
+            idea_logprob = alignment_library[ref_word_set]
+        else:
+            idea_logprob = get_align_logprob(ptr_params.ideas[idea], wordids, pfst_params)
+            alignment_library[ref_word_set] = idea_logprob
+
         if idea_logprob > best_logprob:
             best_logprob = idea_logprob
             best_idea = idea
