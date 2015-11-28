@@ -54,8 +54,8 @@ def main():
         elif wordids in ptr_params.ideas.wordids_idx_dict:
             assignment_library[wordids] = ptr_params.ideas.wordids_idx_dict[wordids]
         else:
-            top_ideas = metrics.get_top_candidates(sent_wordids, new_ptr_params, num_top_candidates=20, jaccard_cutoff=0.5)
-            assignment = metrics.get_assignment(sent_wordids, top_ideas, ptr_data, new_ptr_params, pfst_params)
+            top_ideas = metrics.get_top_candidates(wordids, new_ptr_params, num_top_candidates=20, jaccard_cutoff=0.5)
+            assignment = metrics.get_assignment(wordids, top_ideas, ptr_data, new_ptr_params, pfst_params)
             assignment_library[wordids] = assignment
 
     logging.info('Writing new_ptr_params')
