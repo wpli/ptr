@@ -6,13 +6,20 @@ import numpy
 
 class PTRData:
     def __init__(self):
+        
+        # { 0:[171,182,3,2], 1:...}
         self.docid_wordids = {}
+        
+        
         self.wordid_count = collections.defaultdict(int)
         self.num_docs = 0
         self.num_tokens = 0
         self.num_words = 0
         self.word_wordid = {}
         self.wordid_word = {}
+        
+        # self.vocab indices are the wordids
+        # ['a', 'the', 'of', 'happy'...]
         self.vocab = []
 
     def add_doc(self, docid, words):
