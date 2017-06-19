@@ -1,4 +1,10 @@
 # PTR (Probabililistic Text Reuse)
 
-[Slides](docs/WilliamLi-PTR-Slides.pdf)
+## Related Documents:
+
+* [Slides](docs/WilliamLi-PTR-Slides.pdf)
+* [Thesis Chapter](docs/WilliamLi-PTR-ThesisChapter.pdf)
+
+
+
 
