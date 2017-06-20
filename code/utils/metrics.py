@@ -5,13 +5,13 @@ import collections
 import PTRExperiment
 import heapq
 
-def wordids_to_words( sorted_vocab, word_ids ):
-    return tuple( [ sorted_vocab[i] for i in word_ids ] ) 
+def wordids_to_words(sorted_vocab, word_ids):
+    return tuple([sorted_vocab[i] for i in word_ids]) 
 
-def get_top_candidates(query_wordids, ptr_params, num_top_candidates=50, jaccard_cutoff=0.3):
+def get_top_candidates(query_wordids, ideas, num_top_candidates=50, jaccard_cutoff=0.3):
     idea_hit_counter = collections.defaultdict(int)
     for wordid in query_wordids:
-        idea_set = ptr_params.ideas.wordids_ideas_inverted_index[wordid]
+        idea_set = ideas.wordids_ideas_inverted_index[wordid]
         for i in list(idea_set):
             idea_hit_counter[i] += 1
     top_ideas = heapq.nlargest(num_top_candidates, idea_hit_counter.iteritems(), key=lambda x:x[1])
@@ -19,13 +19,13 @@ def get_top_candidates(query_wordids, ptr_params, num_top_candidates=50, jaccard
     top_candidates = []
     for cand, count in top_ideas:
         jacc = count / \
-            float(len(set.union(set(ptr_params.ideas[cand]), set(query_wordids))))
+            float(len(set.union(set(ideas[cand]), set(query_wordids))))
         if jacc > jaccard_cutoff:
             top_candidates.append(cand)
 
     return top_candidates
 
-def get_assignment(wordids, candidate_ideas, ptr_data, ptr_params, pfst_params, alignment_library):
+def get_assignment(wordids, candidate_ideas, ptr_data, ptr_params, pfst_params, alignment_library={} ):
     background_logprob = get_unigram_logprob(ptr_data, wordids)
     best_logprob = background_logprob
     best_idea = None
@@ -92,7 +92,7 @@ def split_sentences( sorted_vocab, vocab_idx_dict, word_ids ):
     
     return new_tuples
 
-def get_unigram_logprob(ptr_data,word_ids):
+def get_unigram_logprob(ptr_data, word_ids):
     word_counter_dict = ptr_data.wordid_count
     total_tokens = ptr_data.num_tokens
     total_vocab = len(ptr_data.word_wordid)
@@ -108,7 +108,6 @@ def get_unigram_logprob(ptr_data,word_ids):
             count = 0
         total_logprob += numpy.log(count + 1) - numpy.log(total_tokens + \
                                                              total_vocab )
-        #print float(count+1) / ( total_tokens+total_vocab)
         
     return total_logprob
 
@@ -176,6 +175,7 @@ def compute_logprob_poisson( idea_length, lam=100):
 
 
 def compute_corpus_logprob(ptr_data, ptr_params, pfst_params, \
+                           train_ptr_data, \
                            alignment_library={}, \
                            verbose=True):
     
@@ -234,7 +234,7 @@ def compute_corpus_logprob(ptr_data, ptr_params, pfst_params, \
             end_idx = partition[1]
 
             if assignment == None:
-                logprob_passage = get_unigram_logprob(ptr_data, \
+                logprob_passage = get_unigram_logprob(train_ptr_data, \
                                     ptr_data.docid_wordids[docid][start_idx:end_idx])
                 #query_idea = tuple( ptr_data.docid_wordids[docid][start_idx:end_idx] )
                 #ref_word_set = frozenset([None, tuple(query_idea)])
@@ -261,19 +261,6 @@ def get_align_logprob(ref_idea, query_idea, align_scorer=None):
     alpha_matrix = align.forward_evaluate_log(ref_idea, query_idea, align_scorer)
     logprob_passage = alpha_matrix[-1,-1]
     return logprob_passage
-    
-    #logprob_passage = 0.0
-    
-    #aligned_passages = align.AlignedPassages(ref_idea, query_idea, align_scorer)
-    #aligned_passages.global_align()
-    #logprob_passage = aligned_passages.final_score
-    #ops = aligned_passages.alignment_operations
-    #if len(aligned_passages.alignment_operations) != len(aligned_passages.query_passage):
-    #    print aligned_passages.alignment_operations
-    #    print aligned_passages.aligned_reference_passage
-    #    print aligned_passages.aligned_query_passage
-    #    print
-
     
     """
     for idx, op in enumerate(ops):
